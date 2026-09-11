@@ -1,0 +1,37 @@
+{% extends "tracker/base.html" %}
+{% block title %}{{ title }} — Chicken Farm{% endblock %}
+{% block content %}
+<h1>{{ title }}</h1>
+<p><a class="btn secondary" href="{% url add_url %}">+ Add</a></p>
+<ul class="list">
+{% for r in rows %}
+  <li>
+    <span>{{ r }}</span>
+    <span class="row-actions">
+      {% if kind == "movement" and r.linked_sale_id %}
+        <span class="meta">from sale</span>
+      {% else %}
+        {% if kind == "eggs" %}<a href="{% url 'egg_edit' r.pk %}">Edit</a>{% endif %}
+        {% if kind == "usage" %}<a href="{% url 'egg_use_edit' r.pk %}">Edit</a>{% endif %}
+        {% if kind == "mortality" %}<a href="{% url 'mortality_edit' r.pk %}">Edit</a>{% endif %}
+        {% if kind == "sales" %}<a href="{% url 'sale_edit' r.pk %}">Edit</a>{% endif %}
+        {% if kind == "expenses" %}<a href="{% url 'expense_edit' r.pk %}">Edit</a>{% endif %}
+        {% if kind == "movement" %}<a href="{% url 'movement_edit' r.pk %}">Edit</a>{% endif %}
+      {% endif %}
+      <form class="inline-form" method="post" action="
+        {% if kind == 'eggs' %}{% url 'egg_delete' r.pk %}
+        {% elif kind == 'usage' %}{% url 'egg_use_delete' r.pk %}
+        {% elif kind == 'mortality' %}{% url 'mortality_delete' r.pk %}
+        {% elif kind == 'sales' %}{% url 'sale_delete' r.pk %}
+        {% elif kind == 'expenses' %}{% url 'expense_delete' r.pk %}
+        {% elif kind == 'movement' %}{% url 'movement_delete' r.pk %}
+        {% endif %}">
+        {% csrf_token %}
+        <input type="hidden" name="next" value="{{ request.path }}">
+        <button class="danger" type="submit">Delete</button>
+      </form>
+    </span>
+  </li>
+{% empty %}<li>Nothing here yet.</li>{% endfor %}
+</ul>
+{% endblock %}

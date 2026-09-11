@@ -1,0 +1,47 @@
+{% extends "tracker/base.html" %}
+{% block title %}New sale — Chicken Farm{% endblock %}
+{% block content %}
+<h1>New sale</h1>
+<form method="post">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <datalist id="unit-suggestions">
+    <option value="count"></option>
+    <option value="eggs"></option>
+    <option value="crates"></option>
+    <option value="birds"></option>
+    <option value="kg"></option>
+  </datalist>
+  <p class="helptext" id="sale-hint"></p>
+  <button class="primary" type="submit">Save sale</button>
+</form>
+<p><a class="btn secondary" href="{% url 'dashboard' %}">Back</a></p>
+{% endblock %}
+{% block extra_js %}
+<script>
+(function () {
+  var layers = {{ layers_json|safe }};
+  var broilers = {{ broilers_json|safe }};
+  var typeSel = document.getElementById("id_item_type");
+  var batchSel = document.getElementById("id_batch");
+  var hint = document.getElementById("sale-hint");
+  if (!typeSel || !batchSel) return;
+  function refill() {
+    var list = typeSel.value === "Broiler" ? broilers : layers;
+    var current = batchSel.value;
+    batchSel.innerHTML = "";
+    list.forEach(function (b) {
+      var o = document.createElement("option");
+      o.value = b.id; o.textContent = b.name;
+      batchSel.appendChild(o);
+    });
+    batchSel.value = current;
+    hint.textContent = typeSel.value === "Broiler"
+      ? "Broiler sale also removes the birds from the flock count."
+      : "Egg sale is checked against egg stock, but never blocked.";
+  }
+  typeSel.addEventListener("change", refill);
+  refill();
+})();
+</script>
+{% endblock %}

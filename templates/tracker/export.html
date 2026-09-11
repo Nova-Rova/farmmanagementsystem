@@ -1,0 +1,13 @@
+{% extends "tracker/base.html" %}
+{% block title %}Backup — Chicken Farm{% endblock %}
+{% block content %}
+<h1>Download backup</h1>
+<p>Take your records with you. Works no matter where the app is hosted.</p>
+<p><a class="btn" href="{% url 'export_json' %}">Download full backup (JSON)</a></p>
+<h2>Tables (CSV)</h2>
+<ul class="menu-list">
+{% for m in models %}
+  <li><a href="{% url 'export_csv' m %}">{{ m }}.csv</a></li>
+{% endfor %}
+</ul>
+{% endblock %}

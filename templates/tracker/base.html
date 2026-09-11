@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% block title %}Farm{% endblock %}</title>
+<link rel="stylesheet" href="/static/tracker/style.css">
+</head>
+<body>
+<header class="topbar">
+  <a class="brand" href="{% url 'dashboard' %}">Chicken Farm</a>
+  <div class="textsize" role="group" aria-label="Text size">
+    <button type="button" data-size="100" title="Normal text">A</button>
+    <button type="button" data-size="125" title="Bigger text">A+</button>
+    <button type="button" data-size="150" title="Biggest text">A++</button>
+  </div>
+</header>
+
+{% if messages %}
+<div class="messages">
+  {% for m in messages %}<p class="msg {{ m.tags }}">{{ m }}</p>{% endfor %}
+</div>
+{% endif %}
+
+<main>
+{% block content %}{% endblock %}
+</main>
+
+<nav class="bottomnav" aria-label="Main">
+  <a href="{% url 'dashboard' %}">Home</a>
+  <a href="{% url 'egg_add' %}">+ Eggs</a>
+  <a href="{% url 'mortality_add' %}">+ Loss</a>
+  <a href="{% url 'sale_add' %}">+ Sale</a>
+  <a href="{% url 'expense_add' %}">+ Spend</a>
+  <a href="{% url 'more' %}">More</a>
+</nav>
+
+<script>
+(function () {
+  var root = document.documentElement;
+  function apply(pct) {
+    root.style.fontSize = pct + "%";
+    try { localStorage.setItem("farm-text-size", pct); } catch (e) {}
+    document.querySelectorAll(".textsize button").forEach(function (b) {
+      b.classList.toggle("on", b.dataset.size === String(pct));
+    });
+  }
+  var saved = 100;
+  try { saved = parseInt(localStorage.getItem("farm-text-size") || "100", 10) || 100; } catch (e) {}
+  if ([100, 125, 150].indexOf(saved) < 0) saved = 100;
+  apply(saved);
+  document.querySelectorAll(".textsize button").forEach(function (b) {
+    b.addEventListener("click", function () { apply(b.dataset.size); });
+  });
+})();
+</script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>

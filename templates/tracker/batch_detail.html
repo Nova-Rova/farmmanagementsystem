@@ -1,0 +1,29 @@
+{% extends "tracker/base.html" %}
+{% block title %}{{ b.name }} — Chicken Farm{% endblock %}
+{% block content %}
+<h1>{{ b.name }}</h1>
+<p class="meta">{{ b.type }} · {{ b.status }} · started {{ b.start_date }}{% if b.source %} · {{ b.source }}{% endif %}{% if b.is_seed %} · sample data{% endif %}</p>
+<p><a href="{% url 'batch_edit' b.pk %}">Edit batch</a></p>
+
+<h2>Flock</h2>
+<div class="kv"><span>Birds alive now</span><strong>{{ count }}</strong></div>
+<div class="kv"><span>Started with</span><span>{{ b.starting_bird_count }}</span></div>
+<div class="kv"><span>Added</span><span>+{{ added }}</span></div>
+<div class="kv"><span>Sold</span><span>−{{ sold }}</span></div>
+<div class="kv"><span>Removed</span><span>−{{ removed }}</span></div>
+<div class="kv"><span>Died</span><span>−{{ dead }}</span></div>
+{% if b.needs_count_review %}<div class="alert"><strong>Needs count review</strong> — the count is below zero. Check for missing entries.</div>{% endif %}
+{% if egg_stock is not None %}
+<h2>Eggs</h2>
+<div class="kv"><span>In stock</span><strong>{{ egg_stock }}</strong></div>
+{% endif %}
+
+<h2>Recent events</h2>
+{% if eggs %}<h2>Egg collections</h2><ul class="list">{% for e in eggs %}<li><span>{{ e.date }} +{{ e.eggs_collected }}{% if e.eggs_cracked %} ({{ e.eggs_cracked }} cracked){% endif %}</span></li>{% endfor %}</ul>{% endif %}
+{% if usages %}<h2>Home use</h2><ul class="list">{% for u in usages %}<li><span>{{ u.date }} used {{ u.quantity }}{% if u.note %} — {{ u.note }}{% endif %}</span></li>{% endfor %}</ul>{% endif %}
+{% if sales %}<h2>Sales</h2><ul class="list">{% for s in sales %}<li><span>{{ s.date }} {{ s.item_type }} x{{ s.quantity }} {{ s.unit }}</span><span class="meta">{{ CURRENCY }}{{ s.amount_received }}</span></li>{% endfor %}</ul>{% endif %}
+{% if mortalities %}<h2>Losses</h2><ul class="list">{% for m in mortalities %}<li><span>{{ m.date }} x{{ m.quantity }}{% if m.cause %} — {{ m.cause }}{% endif %}</span></li>{% endfor %}</ul>{% endif %}
+{% if movements %}<h2>Movements</h2><ul class="list">{% for m in movements %}<li><span>{{ m.date }} {{ m.type }} x{{ m.quantity }}</span></li>{% endfor %}</ul>{% endif %}
+{% if health %}<h2>Health</h2><ul class="list">{% for h in health %}<li><span>{{ h.date }} {{ h.type }}: {{ h.name }}{% if h.next_due_date %} (due {{ h.next_due_date }}){% endif %}</span></li>{% endfor %}</ul>{% endif %}
+{% if expenses %}<h2>Expenses</h2><ul class="list">{% for e in expenses %}<li><span>{{ e.date }} {{ e.category }}{% if e.note %} — {{ e.note }}{% endif %}</span><span class="meta">{{ CURRENCY }}{{ e.amount }}</span></li>{% endfor %}</ul>{% endif %}
+{% endblock %}

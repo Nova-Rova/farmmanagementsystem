@@ -1,0 +1,26 @@
+{% extends "tracker/base.html" %}
+{% block title %}Vaccines & treatments — Chicken Farm{% endblock %}
+{% block content %}
+<h1>Vaccines & treatments</h1>
+<p><a class="btn secondary" href="{% url 'health_add' %}">+ Add record</a></p>
+<ul class="list">
+{% for h in records %}
+  <li>
+    <span>{{ h.date }} — {{ h.batch.name }} — {{ h.type }}: {{ h.name }}
+      {% if h.next_due_date %}
+        {% if h.next_due_date < today %}<strong>overdue since {{ h.next_due_date }}</strong>
+        {% elif h.next_due_date <= upcoming %}due {{ h.next_due_date }}
+        {% else %}<span class="meta">due {{ h.next_due_date }}</span>{% endif %}
+      {% endif %}
+    </span>
+    <span class="row-actions">
+      <a href="{% url 'health_edit' h.pk %}">Edit</a>
+      <form class="inline-form" method="post" action="{% url 'health_delete' h.pk %}">
+        {% csrf_token %}<input type="hidden" name="next" value="{{ request.path }}">
+        <button class="danger" type="submit">Delete</button>
+      </form>
+    </span>
+  </li>
+{% empty %}<li>No records yet.</li>{% endfor %}
+</ul>
+{% endblock %}

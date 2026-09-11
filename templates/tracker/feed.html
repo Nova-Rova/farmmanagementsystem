@@ -1,0 +1,34 @@
+{% extends "tracker/base.html" %}
+{% block title %}Feed — Chicken Farm{% endblock %}
+{% block content %}
+<h1>Feed</h1>
+<p>Feed bought is recorded under <a href="{% url 'expense_add' %}">+ Spend</a> (category Feed). Logging daily use here is optional.</p>
+
+<h2>Stock</h2>
+<div class="kv"><span>Known stock</span><strong>{{ summary.stock_label }}</strong></div>
+<div class="kv"><span>Spent on feed</span><span>{{ CURRENCY }}{{ summary.spent }}</span></div>
+{% for u in summary.used_by_unit %}
+<div class="kv"><span>Used ({{ u.unit }})</span><span>{{ u.total }}</span></div>
+{% endfor %}
+{% if not summary.has_any %}<p>No feed use logged. The app works fine without it.</p>{% endif %}
+
+<h2>Log feed use</h2>
+<form method="post">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <button class="primary" type="submit">Save</button>
+</form>
+
+<h2>Recent use</h2>
+<ul class="list">
+{% for f in recent %}
+  <li><span>{{ f.date }} — {{ f.batch.name }} — {{ f.quantity }}{{ f.unit }}</span>
+    <span class="row-actions">
+      <form class="inline-form" method="post" action="{% url 'feed_delete' f.pk %}">
+        {% csrf_token %}<input type="hidden" name="next" value="{{ request.path }}">
+        <button class="danger" type="submit">Delete</button>
+      </form>
+    </span></li>
+{% empty %}<li>Nothing logged.</li>{% endfor %}
+</ul>
+{% endblock %}

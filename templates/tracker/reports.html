@@ -1,0 +1,30 @@
+{% extends "tracker/base.html" %}
+{% block title %}Reports — Chicken Farm{% endblock %}
+{% block content %}
+<h1>Reports</h1>
+<form method="get">
+  <p><label for="id_start">From</label><input id="id_start" type="date" name="start" value="{{ start }}"></p>
+  <p><label for="id_end">To</label><input id="id_end" type="date" name="end" value="{{ end }}"></p>
+  <button class="primary" type="submit">Show</button>
+</form>
+
+<h2>Net cash flow</h2>
+<div class="kv"><span>Sales</span><span>{{ CURRENCY }}{{ income }}</span></div>
+<div class="kv"><span>Expenses</span><span>{{ CURRENCY }}{{ spent }}</span></div>
+<div class="kv"><span><strong>Net cash flow</strong></span><strong>{{ CURRENCY }}{{ net }}</strong></div>
+
+<h2>Eggs by day</h2>
+{% for e in eggs %}<div class="kv"><span>{{ e.date }}</span><span>+{{ e.good }}{% if e.bad %} ({{ e.bad }} cracked){% endif %}</span></div>{% empty %}<p>None.</p>{% endfor %}
+
+<h2>Sales</h2>
+{% for s in sales %}<div class="kv"><span>{{ s.item_type }}</span><span>{{ CURRENCY }}{{ s.total }}</span></div>{% empty %}<p>None.</p>{% endfor %}
+
+<h2>Expenses by category</h2>
+{% for e in expenses %}<div class="kv"><span>{{ e.category }}</span><span>{{ CURRENCY }}{{ e.total }}</span></div>{% empty %}<p>None.</p>{% endfor %}
+
+<h2>Losses by batch</h2>
+{% for m in mortality %}<div class="kv"><span>{{ m.batch__name }}</span><span>{{ m.total }}</span></div>{% empty %}<p>None.</p>{% endfor %}
+
+<h2>Flock now</h2>
+{% for b, count in flock %}<div class="kv"><span>{{ b.name }}</span><span>{{ count }}</span></div>{% empty %}<p>No batches.</p>{% endfor %}
+{% endblock %}

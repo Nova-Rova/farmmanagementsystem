@@ -1,0 +1,15 @@
+{% extends "tracker/base.html" %}
+{% block title %}Batches — Chicken Farm{% endblock %}
+{% block content %}
+<h1>Batches</h1>
+<p><a class="btn secondary" href="{% url 'batch_add' %}">+ New batch</a></p>
+<ul class="list">
+{% for b, count in rows %}
+  <li>
+    <span><a href="{% url 'batch_detail' b.pk %}">{{ b.name }}</a>
+      <span class="meta">{{ b.type }} · {{ b.status }}{% if b.is_seed %} · sample{% endif %}{% if b.needs_count_review %} · <strong>needs review</strong>{% endif %}</span></span>
+    <strong>{{ count }}</strong>
+  </li>
+{% empty %}<li>No batches yet.</li>{% endfor %}
+</ul>
+{% endblock %}

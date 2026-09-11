@@ -1,0 +1,59 @@
+{% extends "tracker/base.html" %}
+{% block title %}Home — Chicken Farm{% endblock %}
+{% block content %}
+<h1>Today</h1>
+
+{% if needs_review %}
+<div class="alert">
+  <strong>Needs count review:</strong>
+  {% for b in needs_review %}{{ b.name }}{% if not forloop.last %}, {% endif %}{% endfor %}
+  — a count went below zero. Check the batch page.
+</div>
+{% endif %}
+
+<div class="stat-grid">
+  <a class="stat wide" href="{% url 'batch_list' %}">
+    <div class="label">Birds alive</div>
+    <div class="value">{{ birds }}</div>
+  </a>
+  <div class="stat">
+    <div class="label">Eggs today</div>
+    <div class="value">{{ eggs_today }}</div>
+  </div>
+  <div class="stat">
+    <div class="label">Eggs in stock</div>
+    <div class="value">{{ egg_stock }}</div>
+  </div>
+  <div class="stat">
+    <div class="label">Eggs this week</div>
+    <div class="value">{{ eggs_week }}</div>
+  </div>
+  <div class="stat">
+    <div class="label">Sold this week</div>
+    <div class="value">{{ CURRENCY }}{{ income_w }}</div>
+  </div>
+  <div class="stat">
+    <div class="label">Spent this week</div>
+    <div class="value">{{ CURRENCY }}{{ spent_w }}</div>
+  </div>
+  <div class="stat wide">
+    <div class="label">Net cash flow this week</div>
+    <div class="value">{{ CURRENCY }}{{ net_w }}</div>
+  </div>
+  <a class="stat wide" href="{% url 'health_list' %}">
+    <div class="label">Health</div>
+    <div class="value" style="font-size:1.4rem">{{ due_soon }} due soon · {{ overdue }} overdue</div>
+  </a>
+</div>
+
+<h2>Per batch</h2>
+{% for b, count in batches %}
+<div class="kv"><span>{{ b.name }} ({{ b.type }})</span><strong>{{ count }} birds{% if b.type == "Layer" %} · {{ b.egg_stock }} eggs{% endif %}</strong></div>
+{% empty %}<p>No batches yet. <a href="{% url 'batch_add' %}">Add one</a>.</p>{% endfor %}
+
+<h2>Latest</h2>
+<ul class="list">
+  {% for s in recent_sales %}<li><span>{{ s.date }} — {{ s.item_type }} x{{ s.quantity }}</span><span class="meta">{{ CURRENCY }}{{ s.amount_received }}</span></li>{% endfor %}
+  {% for e in recent_eggs %}<li><span>{{ e.date }} — {{ e.batch.name }}</span><span class="meta">+{{ e.eggs_collected }} eggs</span></li>{% endfor %}
+</ul>
+{% endblock %}
