@@ -2,6 +2,9 @@
 
 Run: python manage.py seed_demo
 Remove: python manage.py seed_demo --clear
+
+Every sample record carries is_seed=True, so --clear finds all of it —
+including expenses, whose batch link is SET_NULL (not cascaded) on delete.
 """
 
 from datetime import timedelta
@@ -15,6 +18,9 @@ from tracker.models import (
     HealthRecord, Mortality, Sale,
 )
 
+SEEDED_MODELS = (BirdMovement, Mortality, EggCollection, EggUsage, Sale,
+                 Expense, FeedUsage, HealthRecord)
+
 
 class Command(BaseCommand):
     help = "Create (or clear with --clear) sample data."
@@ -24,8 +30,13 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         if options["clear"]:
+            total = 0
+            for model in SEEDED_MODELS:
+                n, _ = model.objects.filter(is_seed=True).delete()
+                total += n
             n, _ = Batch.objects.filter(is_seed=True).delete()
-            self.stdout.write(self.style.SUCCESS(f"Removed sample data ({n} objects)."))
+            total += n
+            self.stdout.write(self.style.SUCCESS(f"Removed sample data ({total} objects)."))
             return
         if Batch.objects.filter(is_seed=True).exists():
             self.stdout.write("Sample data already exists. Use --clear first.")
@@ -44,28 +55,36 @@ class Command(BaseCommand):
             d = today - timedelta(days=i)
             EggCollection.objects.create(
                 date=d, batch=layers, eggs_collected=5 if i else 4,
-                eggs_cracked=1 if i == 2 else 0)
+                eggs_cracked=1 if i == 2 else 0, is_seed=True)
         Mortality.objects.create(date=today - timedelta(days=10), batch=layers,
-                                 quantity=1, cause="Sample: illness")
+                                 quantity=1, cause="Sample: illness", is_seed=True)
         Mortality.objects.create(date=today - timedelta(days=3), batch=broilers,
-                                 quantity=2, cause="Sample: heat")
+                                 quantity=2, cause="Sample: heat", is_seed=True)
         HealthRecord.objects.create(
             date=today - timedelta(days=30), batch=layers, type="Vaccination",
-            name="Sample Newcastle vaccine", next_due_date=today + timedelta(days=3))
+            name="Sample Newcastle vaccine", next_due_date=today + timedelta(days=3),
+            is_seed=True)
         HealthRecord.objects.create(
             date=today - timedelta(days=40), batch=broilers, type="Medicine",
-            name="Sample vitamins", next_due_date=today - timedelta(days=2))
+            name="Sample vitamins", next_due_date=today - timedelta(days=2),
+            is_seed=True)
         Expense.objects.create(date=today - timedelta(days=5), category="Feed",
-                               amount=Decimal("150.00"), note="Sample feed", batch=layers)
+                               amount=Decimal("150.00"), note="Sample feed",
+                               batch=layers, is_seed=True)
         Expense.objects.create(date=today - timedelta(days=2), category="Medicine",
-                               amount=Decimal("40.00"), note="Sample medicine")
+                               amount=Decimal("40.00"), note="Sample medicine",
+                               is_seed=True)
         Sale.objects.create(date=today - timedelta(days=1), batch=layers, item_type="Eggs",
-                            quantity=10, unit="count", amount_received=Decimal("20.00"))
+                            quantity=10, unit="count", amount_received=Decimal("20.00"),
+                            is_seed=True)
         Sale.objects.create(date=today, batch=broilers, item_type="Broiler",
-                            quantity=3, unit="birds", amount_received=Decimal("180.00"))
+                            quantity=3, unit="birds", amount_received=Decimal("180.00"),
+                            is_seed=True)
         EggUsage.objects.create(date=today - timedelta(days=1), batch=layers,
-                                quantity=4, note="Sample: home use")
+                                quantity=4, note="Sample: home use", is_seed=True)
         BirdMovement.objects.create(date=today - timedelta(days=15), batch=broilers,
-                                    type=BirdMovement.ADDED, quantity=5, notes="Sample top-up")
-        FeedUsage.objects.create(date=today, batch=layers, quantity=Decimal("2.50"), unit="kg")
+                                    type=BirdMovement.ADDED, quantity=5,
+                                    notes="Sample top-up", is_seed=True)
+        FeedUsage.objects.create(date=today, batch=layers, quantity=Decimal("2.50"),
+                                 unit="kg", is_seed=True)
         self.stdout.write(self.style.SUCCESS("Sample data created."))

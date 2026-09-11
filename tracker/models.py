@@ -80,6 +80,7 @@ class BirdMovement(models.Model):
     notes = models.CharField(max_length=300, blank=True)
     linked_sale = models.OneToOneField(
         "Sale", on_delete=models.CASCADE, null=True, blank=True, related_name="linked_movement")
+    is_seed = models.BooleanField(default=False)
 
     class Meta:
         ordering = ["-date", "-id"]
@@ -93,6 +94,7 @@ class Mortality(models.Model):
     batch = models.ForeignKey(Batch, on_delete=models.CASCADE, related_name="mortalities")
     quantity = models.PositiveIntegerField(validators=[non_negative])
     cause = models.CharField(max_length=300, blank=True)
+    is_seed = models.BooleanField(default=False)
 
     class Meta:
         ordering = ["-date", "-id"]
@@ -108,6 +110,7 @@ class EggCollection(models.Model):
                               limit_choices_to={"type": Batch.LAYER})
     eggs_collected = models.PositiveIntegerField(validators=[non_negative])
     eggs_cracked = models.PositiveIntegerField(default=0, validators=[non_negative])
+    is_seed = models.BooleanField(default=False)
 
     class Meta:
         ordering = ["-date", "-id"]
@@ -128,6 +131,7 @@ class EggUsage(models.Model):
                               limit_choices_to={"type": Batch.LAYER})
     quantity = models.PositiveIntegerField(validators=[non_negative])
     note = models.CharField(max_length=300, blank=True, help_text="e.g. home use, given to family")
+    is_seed = models.BooleanField(default=False)
 
     class Meta:
         ordering = ["-date", "-id"]
@@ -152,6 +156,7 @@ class Sale(models.Model):
     unit = models.CharField(max_length=30, default="count")
     amount_received = models.DecimalField(max_digits=12, decimal_places=2, validators=[non_negative])
     buyer = models.CharField(max_length=200, blank=True)
+    is_seed = models.BooleanField(default=False)
 
     class Meta:
         ordering = ["-date", "-id"]
@@ -204,6 +209,7 @@ class Expense(models.Model):
     amount = models.DecimalField(max_digits=12, decimal_places=2, validators=[non_negative])
     note = models.CharField(max_length=300, blank=True)
     batch = models.ForeignKey(Batch, on_delete=models.SET_NULL, null=True, blank=True, related_name="expenses")
+    is_seed = models.BooleanField(default=False)
 
     class Meta:
         ordering = ["-date", "-id"]
@@ -219,6 +225,7 @@ class FeedUsage(models.Model):
     batch = models.ForeignKey(Batch, on_delete=models.CASCADE, related_name="feed_usages")
     quantity = models.DecimalField(max_digits=10, decimal_places=2, validators=[non_negative])
     unit = models.CharField(max_length=10, default="kg")
+    is_seed = models.BooleanField(default=False)
 
     class Meta:
         ordering = ["-date", "-id"]
@@ -241,6 +248,7 @@ class HealthRecord(models.Model):
     next_due_date = models.DateField(null=True, blank=True,
                                      help_text="Only from your vet or the product label.")
     notes = models.CharField(max_length=300, blank=True)
+    is_seed = models.BooleanField(default=False)
 
     class Meta:
         ordering = ["-date", "-id"]
